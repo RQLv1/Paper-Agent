@@ -102,11 +102,27 @@ Execute the command:
 
 ## Example.1 Daily dialogue
 
+
+https://github.com/user-attachments/assets/199d4ab9-b50f-4875-b869-57a2e155ca83
+
+
 ## Example.2 Database creation and clean
+
+
+https://github.com/user-attachments/assets/5b6f598d-964f-425f-8a75-02212e5c5425
+
 
 ## Example.3 Database analysis
 
+
+https://github.com/user-attachments/assets/b9e4054b-211d-4a47-b0d0-94340d9128b2
+
+
 ## Example.4 Automatic data analysis
+
+
+https://github.com/user-attachments/assets/4d3fa333-f6ec-46d8-899a-f87b470c1f6c
+
     
 ## License
 Paper Agent is licensed under the Apache License, Version 2.0: http://www.apache.org/licenses/LICENSE-2.0.
