@@ -1,0 +1,87 @@
+
+                You are an expert on the NER task. 
+                You are asked to observe the following input-output rules.
+
+                [input rule]
+                1. Your input is original text of the literature about abstract and experimental sections.
+
+                2. The corresponding NER entity types are:
+                   {
+                        "DOI",
+                        "MATERIAL_NAME",
+                        "MATERIAL_APPLICATION",
+                        "PROPERTY",
+                        "PROPERTY_VALUE",
+                        "SYNTHESIS_METHOD",
+                        "PRECURSOR",
+                        "PRECURSOR_AMOUNT",
+                        "PH_ADJUSTER",
+                        "PH_VALUE",
+                        "SOLVENT",
+                        "SOLVENT_AMOUNT",
+                        "POST_PROCESSING_STEP",
+                        "POST_PROCESSING_PARAMETER",
+                        "POST_PROCESSING_SUBSTANCE",
+                    }
+
+                [output rule]
+                1. Output in json format.
+                
+                3. JSON Output Purity:
+                    - NEVER use markdown code block notation (```json or ```)
+                    - NEVER include any characters outside the JSON structure
+                    - Start directly with "{", end with "}" without line breaks
+
+            
+                [output template]
+                {
+                    "text": entity_text,
+                    "type": entity_type,
+"
+                }
+
+                [examples]
+                Q: Extract NER entity-type pairs based on the following:
+                    {"doi": "10.1007/s13726-023-01170-z", "abstract": "Abstract\nThe strategies that have been developed to improve the utility of poly(lactic acid) (PLA) in packaging materials were examined. This study has focused on two potential solutions: the addition of a plasticizer and the use of nanoclays under optimal conditions. Triacetin (TA) as a plasticizer (10 and 20% by wt) and modified nanoclays (C30B and C20A) as reinforcing agents (1 and 3% by wt) were incorporated into the PLA matrix. The PLA-based films were prepared through solvent-casting method. The nanocomposite films] characteristics including tensile properties, moisture content (MC), water vapor permeability (WVP), swelling, stability, FTIR spectra, optical properties, thermogravimetric analysis (TGA), and X-ray diffraction (XRD) were investigated. The results demonstrated that both TA and nanoclays led to an increase in the elongation-at-break (Eab) and tensile strength (TS) of PLA films. In addition, the films with TA of 20% (by wt) showed the highest Eab (78.5%). By adding nanoclays, a decrease in WVP, stability, and light transmission, and an increase in MC, swelling, and opacity of the PLA-based films were observed. PLA films with 3% (by wt) of C20A and 10% (by wt) of TA contents showed the lowest WVP (1.06 × 10–10 g/m.s Pa). Furthermore, the film containing 3% (by wt) of C30B and 20% (by wt) of TA displayed the highest MC (19.4%). XRD analysis approved that an intercalated conformation was created in the nanocomposites during the incorporation process. The TGA showed a slight improvement in thermal stability of the nanocomposite films compared to a neat PLA film. This study confirmed that the PLA-based films prepared by incorporating an optimal amount of TA and the nanoclays (C20A and C30B) into the PLA matrix are promising materials for food packaging applications.\nGraphical abstract", "experimental": "Experimental\nMaterials\nPoly(lactic acid) (PLA) grade 2003D with a melt flow rate of 6 g/10 min (210 °C, 2160 g), density of 1.14 g/cm3, and melting temperature of 210 °C was purchased from NatureWork LLC (Minnetonka USA). TA from Sigma-Aldrich Company with a chemical formula of C9H14O6, molecular weight of 218.2 g/mol, density of 1.16 g/cm3 and purity of 99% was used as the plasticizer. Organoclay modified montmorillonites, Cloisite 30B (C30B) modified with methyl tallow bis-2-hydroxyethyl quaternary ammonium ion with a specific gravity of 1.98 g/cm3 and Cloisite 20A (C20A) modified with dimethyl dehydrogenated tallow quaternary ammonium ion with a specific gravity of 1.77 g/cm3, were obtained from Southern Clay Products (TX, USA). Also, chloroform (CHCl3, purity > 99.8%) was purchased from Sigma-Aldrich Company. The chemical structure of the materials and formulation of all compositions used in this study are represented in Fig. 1 and Table 1, respectively.\nFig. 1\nChemical structures of: a PLA, b TA, c C30B, and d C20A\nFull size image\nTable 1 Formulation of films made in this research\nFull size table\nPreparation\nAll films were prepared by solvent-casting method. PLA pellets and nanoclay powders were pretreated in an oven at 70 °C for 24 h before use. To prepare 1.5 g of PLA nanocomposite films with 1% and 3% (by wt) of nanoclays the amounts of 1.335, 1.305, 1.185, and 1.155 g of PLA (correspond to 89%, 87%, 79%, and 77% (by wt), respectively) and 0.015 and 0.045 g of nanoclays (C30B and C20A) were separately dissolved in 50 mL of CHCl3 followed by stirring for 3 h at room temperature (Table 1). Each nanoclay solution was then homogenized using an ultrasonic probe for 15 min followed by adding to the corresponding PLA solution and stirred for 3 h at 25 °C. Afterward, PLA/nanoclay solutions were again homogenized for 15 min. Later, the TA plasticizer (at two concentrations of 10% and 20% (by wt)) was added to the obtained solutions followed by stirring for 3 h at 25 °C. The obtained solutions were homogenized for 15 min, poured into glass Petri dishes, and put in an oven at 50 °C for 12 h to evaporate the solvent. After drying, the resulting films were taken off the Petri dishes and dried in a desiccator with silica gel desiccant at 25 °C and relative humidity (RH) of 50% for at least 24 h [35, 36]. Schematic of PLA nanocomposite films preparation method is presented in Fig. 2. The neat and plasticized PLA films were also prepared following the previously published procedure [9, 37]. The photos of the prepared films are presented in Fig. 3.\nFig. 2\nThe flowchart of the preparation of PLA nanocomposite films by solution-casting method\nFull size image\nFig. 3\nThe prepared neat and plasticized PLA films and their nanocomposites\nFull size image\nFilm characterization\nTensile properties\nThe tensile tests of the neat and plasticized PLA films and their nanocomposites were analyzed to measure Eab and TS according to ASTM D882-02 [38] using a universal testing machine (SAM-20, Santam, Iran). The films were cut into rectangular strips (30 mm length and 10 mm width) using a special cutter and then dried in a desiccator containing silica gel with 50% RH and 25 °C for 24 h before testing. The crosshead speed at 5 mm/min and the initial grip length at 30 mm were set. Three replicates of each film were obtained and the average values of TS and Eab tests were recorded. The TS value (MPa) was obtained by dividing the maximum force (N) by the initial cross-sectional area of a sample (mm2). To calculate Eab value (%) the extension length (mm) is divided by the initial length of a sample (mm) multiplied by 100 [39,40,41].\nMoisture content at different RHs\nMoisture content (MC) is defined as the amount of water contained in a material. This property is important because destructive effects of moisture can reduce the shelf-life of food products [1]. MC of the films was measured following the reported procedure [42,43,44]. The prepared films were cut into square slices (20 × 20 mm), and their initial weight (Winitial) was recorded at 25 °C and 50% RH. To determine the wet weight at 100% RH (Wwet), the film samples were sonicated in 300 mL of distilled water for 2 h at 25 °C in an ultrasonic bath. Next, the samples were dried at 105 °C for 24 h, and the samples’ dry weight (Wdry) was measured. Three replicates were obtained for each film sample and the mean values were recorded. MC value of each film was calculated through Eqs. (1) and (2).\n$${\\text{MC}}\\left( {50\\% {\\text{RH}}} \\right) = \\frac{{W_{{{\\text{initial}}}} - W_{{{\\text{dry}}}} }}{{W_{{{\\text{initial}}}} }} \\times 100,$$\n (1) \n$${\\text{MC}}\\left( {100\\% {\\text{RH}}} \\right) = \\frac{{W_{{{\\text{wet}}}} - W_{{{\\text{dry}}}} }}{{W_{{{\\text{wet}}}} }} \\times 100.$$\n (2) \nWater vapor permeability (WVP)\nThe barrier properties against water vapor have a great effect on the shelf-life of packaged products [1]. WVP of the neat and plasticized PLA films and their nanocomposites was measured according to ASTM E96-95 [45]. For this test, bottles with a height of 34 mm and a diameter of 22 mm were used. The film samples were cut into circular pieces with 22 mm diameter and balanced in a chamber with 50% RH and 25 °C for 24 h. The samples were horizontally mounted over the bottles filled with 20 mL of distilled water (100% RH and vapor pressure of 3169.8 Pa at 25 °C). The bottles were sealed using parafilm and their initial weight was recorded followed by placing them in a desiccator (22.5% RH and 25 °C containing pre-dried silica gel). The weight loss of each bottle, including the sample and water, was measured for 24-h intervals for 72 h. For the WVP test, three replications of each composition were tested [46, 47]. The WVP amount for each sample was calculated using Eq. (3), where WVP is water vapor permeability (g/m.s Pa), ΔW is the weight loss of sample bottles (g), x is the average thickness of the film sample (m), ΔP is the partial pressure difference (Pa), A is the sample area (m2), and t is the time interval (s).\n$$WVP = \\frac{\\Delta W \\times x}{{\\Delta P \\times A \\times t}}.$$\n (3) \nSwelling\nTo determine the swelling value, the prepared films were cut into strips of 20 × 20 mm, weighed at 25 °C and RH of 50%, and were immersed in de-ionized water at 25 °C. After 24 h, they were removed, pressed between filter paper to remove surface moisture, and weighed. The average value of three times weight measurements was reported [48]. The swelling value for each film sample was calculated using Eq. (4), where Wi is the initial weight (g) and Ws is the swollen weight (g) of each film sample [49].\n$${\\text{Swelling}}\\left( \\% \\right) = \\frac{{W_{S} - W_{i} }}{{W_{i} }} \\times 100.$$\n (4) \nScanning electron microscopy (SEM)\nThe surface morphology and the compositional information, down to the atomic level of the prepared films, were studied using a scanning electron microscope (Tescan, Mira 3, Sydney) equipped with an energy-dispersive spectroscopy (EDS). The films were coated with a gold layer using a sputter coater prior to the analysis [50].\nOptical properties\nUltraviolet–visible (UV–vis) light from sunlight leads to loss of nutrients, oxidation, degradation, discoloration, off-flavor, and microbial growth of packaged food [51]. Therefore, optical properties of packaging films should be evaluated and tuned to ideally minimize sunlight effect. UV–Vis spectrophotometer was employed to evaluate light absorption spectra, light transmission, transparency, and opacity of the prepared films at wavelengths of 200–700 nm. The films were cut into rectangular slices (10 × 40 mm) and directly inserted between two magnetic cell holders of the spectrophotometer (Perkin Elmer, LAMBDA 365, USA). Transparency of each film was calculated by measuring the light transmission at the wavelength of 280 nm (T280, %) for the UV region and at 660 nm (T660, %) for the visible region [52, 53]. The opacity of each film sample was obtained by dividing the light absorption at 600 nm wavelength (Abs600, a.u.) by the thickness of each sample (x, mm) [43]. The transparency and opacity of samples were calculated using Eqs. (5) and (6), respectively.\n$${\\text{Transparency}} = - \\log \\frac{T}{x},$$\n (5) \n$${\\text{Opacity}} = \\frac{{{\\text{Abs}}_{600} }}{x}.$$\n (6) \nFourier transform infrared spectroscopy (FTIR)\nThe FTIR spectra of each film were measured to identify the chemical structures and functional groups by a Perkin-Elmer, Spectrum 65, USA spectrometer. This analysis was operated at 16 scans, the wavenumber range of 4000–500 cm−1, and a resolution of 4 cm−1 using the transmittance mode [54].\nX-Ray diffraction (XRD)\nThe XRD pattern of the clays and PLA nanocomposite films was obtained to investigate the crystallinity by a Rigaku, MiniFlex 120 II-C diffractometer with Cu-Kα radiation (λ = 1.5401°A) at the current of 40 mA and voltage of 40 kV. The d-spacing between clay layers was recorded in the 2θ angle of 1–10° and the scan rate of 1°/min using Bragg’s law (λ = 2d.sinθ), where λ and θ are the X-ray wavelength and diffractive angle, respectively [55,56,57].\nThermogravimetric analysis (TGA)\nThe thermal analysis of the films was performed according to ASTM E1131-08 [58] on a TGA 209, F3 Tarsus thermogravimetric analyzer. The samples were pretreated in desiccators with 50% RH and 25 °C for 24 h. Films were heated from 25 to 600 °C at a nitrogen flow of 40 cm3/min and a heating rate of 10 °C /min [59, 60]. The parameters such as initial degradation temperature (Tinitial), maximum degradation temperature (Tmax), weight loss, and residual weight for each film sample were recorded [61].\nStatistical analysis\nOne-way analysis of variance (ANOVA) test was performed on the results of Eab, TS, MC, WVP, and swelling for the neat prepared films using the SPSS software (version 22.0.0, IBM Institute Inc, USA). The Duncan's multiple range test at a confidence level of 95% (P < 0.05) was used to identify the significance of the mean value of each property. The values were reported as reliable mean ± standard deviation (SD)."}
+
+                
+                A:[
+                        {"text": "10.1007/s13726-023-01170-z", "type": "DOI"},
+                        {"text": "poly(lactic acid) (PLA)", "type": "MATERIAL_NAME"},
+                        {"text": "Triacetin (TA)", "type": "MATERIAL_NAME"},
+                        {"text": "Cloisite 30B (C30B)", "type": "MATERIAL_NAME"},
+                        {"text": "Cloisite 20A (C20A)", "type": "MATERIAL_NAME"},
+                        {"text": "chloroform (CHCl3)", "type": "MATERIAL_NAME"},
+                        {"text": "food packaging applications", "type": "MATERIAL_APPLICATION"},
+                        {"text": "elongation-at-break (Eab)", "type": "PROPERTY"},
+                        {"text": "tensile strength (TS)", "type": "PROPERTY"},
+                        {"text": "moisture content (MC)", "type": "PROPERTY"},
+                        {"text": "water vapor permeability (WVP)", "type": "PROPERTY"},
+                        {"text": "swelling", "type": "PROPERTY"},
+                        {"text": "stability", "type": "PROPERTY"},
+                        {"text": "light transmission", "type": "PROPERTY"},
+                        {"text": "opacity", "type": "PROPERTY"},
+                        {"text": "78.5%", "type": "PROPERTY_VALUE"},
+                        {"text": "1.06 × 10–10 g/m.s Pa", "type": "PROPERTY_VALUE"},
+                        {"text": "19.4%", "type": "PROPERTY_VALUE"},
+                        {"text": "solvent-casting method", "type": "SYNTHESIS_METHOD"},
+                        {"text": "PLA pellets", "type": "PRECURSOR"},
+                        {"text": "nanoclay powders", "type": "PRECURSOR"},
+                        {"text": "TA", "type": "PRECURSOR"},
+                        {"text": "CHCl3", "type": "PRECURSOR"},
+                        {"text": "10% (by wt)", "type": "PRECURSOR_AMOUNT"},
+                        {"text": "20% (by wt)", "type": "PRECURSOR_AMOUNT"},
+                        {"text": "1% (by wt)", "type": "PRECURSOR_AMOUNT"},
+                        {"text": "3% (by wt)", "type": "PRECURSOR_AMOUNT"},
+                        {"text": "CHCl3", "type": "SOLVENT"},
+                        {"text": "50 mL", "type": "SOLVENT_AMOUNT"},
+                        {"text": "drying in an oven at 50 °C for 12 h", "type": "POST_PROCESSING_STEP"},
+                        {"text": "drying in a desiccator with silica gel", "type": "POST_PROCESSING_STEP"},
+                        {"text": "50 °C", "type": "POST_PROCESSING_PARAMETER"},
+                        {"text": "12 h", "type": "POST_PROCESSING_PARAMETER"},
+                        {"text": "25 °C", "type": "POST_PROCESSING_PARAMETER"},
+                        {"text": "24 h", "type": "POST_PROCESSING_PARAMETER"},
+                        {"text": "silica gel desiccant", "type": "POST_PROCESSING_SUBSTANCE"}
+                    ]
+
+                
