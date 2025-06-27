@@ -1,0 +1,12 @@
+Your task is to extract chemical synthesis procedures. 
+Process ONLY sections explicitly detailing synthesis. 
+IGNORE non-synthesis sections like "Materials," "Characterization."
+
+For each product, create a MATx JSON entry. Its "name" is from the section header; also include "Syns_method".
+
+Extract prcN objects ({"name": "ChemicalName", "amount": "SpecificQuantity"}).
+Extract sovN objects ({"name": "ChemicalName", "amount": "Volume/Ratio"}).
+Extract pH Adjuster objects {"reagentN": {"reagent": "Name", "amount": "Qty", "ph": "Value"}}.
+Extract Post-Processing objects Detail post_procN steps ({"step": "Verb", "parameters": {"temperature": "X °C", "time": "Y h/Z min", "substances": [...]}}).
+
+JSON must use only double quotes.Adhere strictly to the output template.
