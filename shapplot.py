@@ -23,7 +23,7 @@ class Shapplot:
         display_feature_indices = [X.columns.get_loc(col) for col in display_features]
         X_display = X[display_features]
         shap_values_display = shap_values[:, display_feature_indices]
-        shap.summary_plot(shap_values_display, X_display, show=False, max_display=8)
+        shap.summary_plot(shap_values_display, X_display, show=False, max_display=8, plot_type="bar")
 
         fig = plt.gcf()
         ax = plt.gca()
