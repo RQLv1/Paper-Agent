@@ -1,0 +1,417 @@
+
+            You are an expert in extracting chemical synthesis procedures from academic papers. Follow these rules strictly:
+            
+            [input rule]
+            1. Section Filtering
+            1.1 Ignore these sections:
+                - "Materials and Chemicals" 
+                - "Characterization"
+                - "Measurement"
+                - "Experimental Setup"
+                - Sections similar to the above that do not describe the synthesis process
+            1.2 Process only these sections:
+                - "Preparation of..." 
+                - "Synthesis of..."
+                - Containing explicit synthesis steps
+            
+            2. Material Identification
+            2.1 Create MATx entries ONLY when synthesis steps exist
+            2.2 Material name = Final product name from section header
+                - Example: "Preparation of DNCFs" → "name": "DNCFs"
+            
+            3. Data Extraction Protocol
+            3.1. Precursors (The following conditions must be met):
+                 - Explicitly mentioned in active synthesis steps
+                 - Contains BOTH chemical name AND quantity
+                 - Format conversion rules:
+                   • "NCFs" → keep original
+                   • "Fe(NO3)3·9H2O" → preserve exactly
+                   • "2-aminoterephthalic acid" → "NH2-BDC"
+            
+            3.2. Solvents (The following conditions must be met):
+                 - Liquid medium in solution preparation
+                 - Contains volume/ratio information
+                 - Conversion table:
+                   • "deionized water" → "H2O"
+                   • "acetic acid" → "CH3COOH"
+            
+            3.3. Process Parameters Extraction Matrix:
+            | Parameter    | Pattern Match                          | Output Format      |
+            |--------------|----------------------------------------|--------------------|
+            | Temperature  | \d+\s?°[CF]                            | "500 °C"           |
+            | Time         | \d+\s?(h|min)                          | "4 h"/"30 min"     |
+            | Amount       | \d+\.?\d*\s?(g|mg|mL|µL|mol)           | "1.3 g"            |
+            | Concentration| \d+%|\d+\s?(mM|M)                      | "2%"/"15 mM"       |
+
+            [output rule]
+            1. JSON Output Purity:
+               - NEVER use markdown code block notation (```json or ```)
+               - NEVER include any characters outside the JSON structure
+               - Start directly with "{", end with "}" without line breaks
+            
+            2. Syntax Validation:
+               - Ensure proper comma placement between elements
+               - Maintain consistent quotation mark usage (only double quotes)
+               - Verify closing brackets match opening counts
+            
+            3. API Compliance:
+               - Generate output that passes json.loads() validation
+               - Escape special characters properly (e.g., " becomes \")
+
+            4. Precursor:
+               - "precursors" MUST be an object containing prcN sub-objects
+               - Each prcN must be a key-value pair with nested object:
+               Correct:
+               "precursors": {
+                 "prc1": {
+                   "name": "...",
+                   "amount": "..."
+                 }
+               }
+   
+               - Forbidden:
+               "precursors": "prc1"
+
+            [format control]
+            1.Error Prevention Mechanisms
+               - Reject entries without BOTH name and amount
+               - Filter non-quantitative descriptors:
+                 • "appropriate amount" 
+                 • "sufficient quantity"
+               - Unit standardization:
+                 • "µL" → maintain
+                 • "hours" → "h"
+                 • "wt%" → "%"
+            
+            [output template]
+            JSON Schema Enforcement
+            {
+              "MATx": {
+                "name": "ChemicalFormula", 
+                "Syns_method": "TechnicalTermFromHeader",
+                "Syns_processing": {
+                  "precursors": {
+                    "prcN": {
+                      "name": "ChemicalFormula", 
+                      "amount": "ValueWithUnit"
+                    }
+                  },
+                  "solvents": {
+                    "sovN": {
+                      "name": "ChemicalFormula",
+                      "amount": "ValueWithUnit"
+                    }
+                  },
+                  "ph_adjuster": {"reagentN": {"reagent": "chemical ", "amount": "ValueWithUnit", "ph": "value"}}
+                  "post_processing": {
+                    "post_procN": {
+                      "step": "VerbFromText",
+                      "parameters": {
+                        "temperature": "X °C",
+                        "time": "Y h",
+                        "substances": [
+                          {"name": "...", "amount": "..."}
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+                      
+            [examples]
+               Q: Extract the following experimental section text: '2. Experimental 2.1. BiVO4 synthesis The BiVO4 samples were synthesized using an electrodeposition technique, as previously described [44]. Initially, bismuth nitrate pentahydrate (0.485 g) and Potassium iodide 109 (1.66 g) were dissolved in 25 ml of deionized (DI) water, and the pH was adjusted to 1.7 using HNO3. Subsequently, 0.25 g of benzoquinone dissolved in 10 ml ethanol was added dropwise to the above-mentioned solution, and the resulting mixture was continuously stirred. During the electrodeposition process, an Ag/AgCl, Pt, and fluorine-doped tin oxide (FTO) electrodes were used as reference, photocathode, and FTO working electrode, respectively. The resulting solution was used as both a precursor and an electrolyte for the electrodeposition process. A continuous potential (-0.1 V vs. Ag/AgCl) was applied to deposit a BiOI layer on the FTO surface. Next, each BiOI-coated photoelectrode was treated with dimethyl sulfoxide solution (60 µL) containing VO (acac)2 via drop-casting method. The samples were then annealed at 500°C with a ramp rate of 2 °C/min. Then, BiVO4 photoanodes were immersed in NaOH solution (1 M), to remove excess V2O5. Finally, BiVO4 photoanodes were rinsed with DI water and ethanol and then dried under ambient conditions. 2.2. Synthesis of BiVO4/Co,Fe-NTMP To synthesize BiVO4/Co,Fe-NTMP photoanodes, the BiVO4 sample was first immersed in 15 mM NTMP solution for five minutes, followed by immersion in a 15 mM iron nitrate nonahydrate solution and for 15 mM cobalt nitrate hexahydrate solution for another five minutes. The samples were rinsed with DI water between each step, and the procedure was conducted for 1, 3, and 6 cycles to fabricate the BiVO4/Co,Fe-NTMP metal-organic complex photoanodes. 2.3. Computational studies Density functional theory (DFT) analysis, were performed using projector-augmented wave (PAW) pseudopotentials, based on the plane-wave method [45] within the Vienna Ab initio Simulation Package (VASP) [46], [47]. The Perdew-Burke-Ernzerhof (PBE) functional with Hubbard U corrections was employed to account for exchange-correlation effects. The plane-wave cutoff energy was set to 600 eV for bulk calculations and 400 eV for surface systems. A U value of 2.7 was applied to vanadium to accurately reproduce the experimental bandgap of 2.4–2.6 eV [48]. Structural optimization of bulk BiVO4 was conducted using the C2/c space group, and the atomic forces converged to within ∼0.01 eV/Å. For bulk systems, an 8 × 8 × 8 Monkhorst-Pack K-point mesh was used, while a 2 × 2 × 1 mesh was adopted for slab models. The optimized bulk lattice parameters (a= 7.31, b= 11.74, c= 5.16 Å) were used to fix the lateral dimensions of the BiVO4(001) surface, identified as the most thermodynamically stable facet [49]. The surface model consisted of 2 × 1 unit cell dimensions with a slab thickness of ∼ 6.4 Å, as shown in Figure S1a. A vacuum region of ∼ 20 Å was included along the surface-normal direction to minimize spurious interactions. BiVO4 comprises four atomic layers, with the two bottom layers constrained during relaxation. The remaining layers were relaxed until the atomic forces fell below 0.05 eV/Å. For incorporating metallic Co and Fe atoms into NTMP molecules, nitrilotris (methylene phosphonic acid: NTMP) was used as the ligand. The Co and Fe atoms were embedded between two NTMP molecules, forming a complex as depicted in Figure S1b (NTMP-Fe-NTMP-Co-NTMP-Fe-NTMP). Due to the large size of the complex for the slab model, the ATMP structure was divided into two smaller fragments, NTMP-Fe-NTMP and NTMP-Co-NTMP, as shown in Figures S1c and S1d. Each fragment was isolated and geometrically optimized before placement on the BiVO4 (001) surface. The proposed energetically favorable configurations are illustrated in Figures S1e and S1f. For the NTMP-BiVO₄ complex, the force criterion was set to 0.07 eV/Å to account for the high entropic contributions of NTMP, which prevented stabilization below 0.05 eV/Å. Further details on the determination of these configurations are provided in the Supporting Information (SI).'
+               A: {
+                    "MAT1":{
+                        "name": "BiVO4",
+                        "Syns_method": "electrodeposition",
+                        "Syns_processing":{
+                            "precursors": {
+                                "prc1": {"name": "Bi(NO3)3·5H2O", "amount": "0.485 g"}, 
+                                "prc2": {"name": "KI 109", "amount": "1.66 g"}
+                                },
+                            "solvents":{
+                                "sov1": {"name": "H2O", "amount": "25 mL"}, 
+                                "sov2": {"name": "C6H4O2", "amount": "0.25 g"}, 
+                                "sov3": {"name": "C2H5OH", "amount": "10 mL"}
+                            },
+                            "ph_adjuster": {"reagent": "HNO3", "ph": "1.7"},
+                            "post_processing": {
+                                "post_proc1": {"step": "drop-cast", "substance": [{"name": "dimethyl sulfoxide solution containing VO(acac)2", "amount": "60 µL"}]},
+                                "post_proc2": {"step": "anneal", "substance": [{"name": "photoanodes"}], "parameters": {"temperature": "500 °C"}}
+                            }
+                        }
+                    },
+                
+                    "MAT2":{
+                        "name": "BiVO4/Co,Fe-NTMP",
+                        "Syns_method": "solution immerse",
+                        "Syns_processing":{
+                            "precursors": {
+                                "prc1": {"name": "BiVO4"},
+                            },
+                            "solvents": {
+                                "sov1": {"name": "NTMP solution", "amount": "15 mM"}, 
+                                "sov2": {"name": "Fe(NO3)3·9H2O", "amount": "15 mM"}, 
+                                "sov3": {"name": "Co(NO3)2·6H2O", "amount": "15 mM"}
+                            },
+                            "post_processing": {
+                                "post_proc1": {"step": "immerse","substance": [{"name": "photoanodes"}], "parameters": {"time": "1, 3, 6 cycles"}}
+                            }
+                        }
+                    }
+                }
+
+               Q:Extract the following experimental section text: '2. Materials and methods 2.1. Chemicals Zirconium chloride (ZrCl4, 99.8 %, Alfa-Aesar ≥99.5 %), 1,3,5-Benzenetricarboxylic acid (H3BTC, 98 %,Fisher Scientific), Isopropyl alcohol (≥99 %, Sigma-Aldrich,) Formic acid (≥96 %, Sigma-Aldrich), Acetic acid (≥99 % Sigma-Aldrich), Ethanol absolute (≥99 % VWR), Tetrachloroauric(III) acid trihydrate (HAuCl4·3H2O, 99 % Sigma-Aldrich), Sodium hydroxide (NaOH, ≥99 % Sigma-Aldrich), Bovine serum albumin (≥98 % Sigma-Aldrich), Hydrochloric acid (37 % Sigma-Aldrich), Nitric Acid (65 %, Sigma-Aldrich), Phosphate buffer solution pH=7 (Sigma-Aldrich), Ethylenediaminetetraacetic acid (EDTA, 98 % Aldrich), Mercury nitrate monohydrate (Hg(NO3)2·H2O), and other metal ions were all analysis reagent grade and purchased from Sigma-Aldrich. Milli-Q water (18.2 MΩ cm−1) was used throughout the experiments. 2.2. Synthesis 2.2.1. Synthesis and purification of Au25@BSA Au25@BSA nanoclusters were synthesized following the protocol reported by Xie et al. [25], with slight modifications. Prior to the synthesis, all glassware was rigorously cleaned with Aqua Regia (3:1 mixture of HCl and HNO3) and thoroughly rinsed with ultrapure water to eliminate any metal contaminants. An aqueous solution of HAuCl4 (10 mM) was prepared by dissolving the salt in 5 mL of ultrapure water. Separately, a Bovine Serum Albumin (BSA) solution (50 mg/mL) was prepared by dissolving the protein in 5 mL of ultrapure water. Both solutions were heated until they reached 37 °C. Subsequently, the BSA solution was placed in an oil bath maintained at 37 °C, and the HAuCl4 solution was added to it under vigorous stirring. After 2 mins, NaOH solution (0.5 mL, 1 M) was added to adjust the pH to 11. The reaction mixture was maintained at 37 °C in the oil bath under continuous stirring for 12 h. At the end of the reaction, a red-brown solution was obtained (Fig. S1). The as-synthesized Au25@BSA solution was purified to remove unreacted BSA and other byproducts according to the method described by Guan et al. [30]. Briefly, 2 mL of the Au25@BSA solution was added into a glass vial, followed by rapid injection of 2 mL of Zn²⁺ solution (10 mM). The resulting precipitate was centrifuged at 6000 rpm for 10 mins and washed three times with distilled water. After discarding the supernatant, the precipitate was redispersed in 2 mL of PBS solution, yielding a clear brown solution. This was further diluted to a final volume of 20 mL with ultrapure water. 2.2.2. Synthesis of MOF-808 MOF-808 was synthesized following a room temperature approach reported by Dai et al. [29], which involves the initial preparation of Zr6-oxoclusters as metal nodes of the MOF. In the first step, Zr₆-oxoclusters were synthesized by dissolving ZrCl4 (10 g) in a mixture of acetic acid (15 mL) and isopropanol (25 mL). The mixture was stirred at 500 rpm and heated to 120 °C for 60 mins under reflux. The resulting product was collected by gravity filtration, washed with cold isopropanol, and dried in air at room temperature. Next, Zr6-oxoclusters (1.2 g) were dissolved in formic acid (3 mL) under stirring at 600 rpm. Subsequently, H2O (5 mL) was added dropwise, and the mixture was stirred until it became completely colourless. Then, 1,3,5-benzenetricarboxylic acid (300 mg) was added, and the reaction mixture was stirred overnight at room temperature. The solid product was collected by centrifugation at 14,500 rpm for 5 mins, followed by washing with 40 mL of H2O and 40 mL of ethanol. The washed solid was dried at 60 °C in air and activated under vacuum at 120 °C overnight to yield the final MOF-808 product. 2.2.3. MOF-808/Au25@BSA preparation MOF-808 powders (100 mg) were dispersed in 20 mL of the diluted, purified Au25@BSA solution and sonicated for 10 mins. The resulting dispersion was then stirred continuously for 24 h. The product was subsequently recovered by centrifugation at 12,000 rpm for 10 mins, washed three times with 50 mL of ultrapure water to remove unbound clusters, and dried at 50 °C overnight. 2.3. Characterization and instrumentations PXRD measurements were performed with a Malvern PANalytical Empyrean Alpha 1 machine in Bragg-Brentano geometry using Cu Kα1 radiation in the range from 3° to 70°. FTIR spectroscopy was carried out using a Shimadzu IR Affinity-1 FTIR spectrophotometer in transmittance mode from 400 to 4000 cm−1. BET-specific surface area determination from N2 isotherms (77 K) was carried out according to the BET theory [31,32]. Data was recorded on an Anton Paar Autosorb IQ3 High Vacuum Physisorption Analyzer. The sample (∼50 mg) was added to a frit tube and activated in vacuum (150 °C or 400 °C, ∼3 × 10–5 mbar, 12 h) prior to the measurement. Thermogravimetric measurements were performed using a Q5000 IR apparatus (TA Instruments) under an inert nitrogen atmosphere. The analysis was conducted over a temperature range of 25 to 700 °C at a scanning rate of 20 °C/min. The XRF spectra were recorded using a Bruker Tracer III–SD Series AXS portable spectrometer having a Rhodium tube as X-ray generator and a silicon drift XFlash® with Peltier cooling system as a detector. The spectra were acquired with a voltage of 40 Kv and a current of 11 µA. In all spectra, there are also signals of Ar, Ni, Fe, Pt and Rh due respectively to the atmosphere and to the instrumental components. Data analysis was performed using the ARTAX® software. The absorption spectra were acquired by using a single-beam optical fiber spectrophotometer setup with Avantes AvaLight-DH-S-BAL dual halogen-deuterium light source and a Avantes AvaSpec-ULS2048CL-EVO-RS spectrometer allowing the investigation of a spectral window between 200 and 800 nm. Time-resolved photoluminescence (TRPL) measurements were performed with OPOTEK VIBRANT tunable laser (pulse length of 5 ns, repetition rate 10 Hz) coupled with a Princeton Instruments Acton SP2300i spectrograph with PI-MAX CCD detector. All the TRPL measurements were acquired at a fixed excitation wavelength of 405 nm (bandwidth=4 nm), with a grating having λblaze=300 nm and 150 groves/mm and slit aperture of 200 μm. The lifetimes curves were fitted with a double exponential decay function (Eqs. S1). The steady state fluorescence measurements were performed with a 405 nm Thorlabs CPS405 laser diode as excitation source and with a spectrophotometer setup composed by an Acton SpectraPro 2300i monochromator and a Princeton Instruments Pixis 400 CCD camera as detector, a 475 nm long pass filter was used to block stray light and diffuse excitation radiation. Measurements on the stability of MOF-808@Au25@BSA steady state luminescence were conducted on the same sample in powders put between microscope glass slides, stored at room temperature and monitored one time per month. All sensing tests were conducted with 1 mm quartz cuvette. Fluorescence titration of MOF-808/Au25@BSA with Hg2+ and selectivity test with metal ions were conducted dispersing by sonication MOF-808/Au25@BSA powders in water with a concentration of 500 μg/mL and with the use of EDTA (0.5 mM) as masking agent for Cu2+ ions as previously reported by different works [[33], [34], [35]].'
+               A:{
+                    "MAT1": {
+                        "name": "NiCoP@NF",
+                        "Syns_method": "chemical vapor deposition",
+                        "Syns_processing":{
+                            "precursors": {
+                                "prc1": {"name": "NF"},
+                                "prc2": {"name": "NaCl", "amount": "1.461 g"},
+                                "prc3": {"name": "CoCl2⋅6H2O", "amount": "1.189 g"}
+                            },
+                            "solvents": {
+                                "sov1": {"name": "H2O", "amount": "50 mL"}
+                            },
+                            "post_processing":{
+                                "post_proc1": {"step": "phosphorize", "substance": [{"name": "NaH2PO2", "amount": "350 mg"}], "parameters": {"temperature": "350 °C"}}
+                            }
+                        }
+                    },
+                
+                    "MAT2": {
+                        "name": "Ce0.1-Fe2P/NiCoP@NF",
+                        "Syns_method": "electrodeposition",
+                        "Syns_processing":{
+                            "precursors": {
+                                "prc1": {"name": "Fe(NO3)2⋅9H2O", "amount": "2.02 g"},
+                                "prc2": {"name": "Ce(NO3)2⋅6H2O", "amount": "217.1 mg"},
+                                "prc3": {"name": "NaNO3", "amount": "85 mg"}
+                            },
+                            "solvents": {
+                                "sov1": {"name": "H2O", "amount": "50 mL"}
+                            },
+                            "post_processing": {
+                                "post_proc1": { "step": "electrodeposite"},
+                                "post_proc2": { "step": "phosphorize","parameters": {"temperature": "400 °C", "time": "2 h" }}
+                            }
+                        }
+                    },
+                
+                    "MAT3":{
+                        "name": "RuO2@NF",
+                        "Syns_method": "drop-cast",
+                        "Syns_processing":{
+                            "precursors": {
+                                "prc1": {"name": "commercial RuO2", "amount": "12.9 mg"},
+                                "prc2": {"name": "Nafion solution (5 wt%)", "amount": "300 µL"}
+                            },
+                            "solvents": {
+                                "sov1": {"name": "C2H5OH", "amount": "700 µL"}
+                            },
+                            "post_processing": {
+                                "post_proc1": {"step": "ultrasonic", "parameters": {"time": "0.5 h" }},
+                                "post_proc2": {"step": "drop-cast"}
+                            }
+                        }
+                    }
+                }
+
+               Q:Extract the following experimental section text: '4 Experimental Section Electrodes Preparation—Preparation of NiCoP@NF (NF: Ni Foam) To prepare the Co-Ni(OH)2@NF precursor, 1.461 g of NaCl and 1.189 g of CoCl2⋅6H2O were dissolved in 50 mL of deionized water (DI) to promote the corrosion of NF. The resulting Co-Ni(OH)2@NF was rinsed, dried, and subsequently phosphorized at 350 °C using 350 mg of NaH2PO2 under an N2 atmosphere. After cooling, the NiCoP@NF was collected and preserved in a vacuum-drying oven. Electrodes Preparation—Preparation of Ce0.1-Fe2P/NiCoP@NF, Fe2P/NiCoP@NF, and Fe2P/NF Anodes A N2-saturated solution was prepared by dissolving 2.02 g of Fe(NO3)2⋅9H2O, 217.1 mg of Ce(NO3)2⋅6H2O, and 85 mg of NaNO3 in 50 mL of DI. The NiCoP@NF was used as the working electrode, with a platinum sheet as the counter electrode, and an Ag/AgCl electrode as the reference electrode. The Ce0.1-Fe(OH)2 precursor was deposited onto NiCoP@NF via cyclic voltammetry (CV) electrodeposition at 65 °C, with a scan rate at 50 mV s−1 over a potential range of −1.2 to 0 V versus Ag/AgCl. Subsequently, the Ce0.1-Fe(OH)2/NiCoP@NF was phosphorized using NaH2PO2 at 400 °C for 2 h. The loading capacity of Ce0.1-Fe2P was ≈12.9 mg cm−2, determined by the gravimetric method. The Fe2P/NiCoP@NF and Fe2P/NF anodes were prepared using the same method as Fe2P/NiCoP@NF but without the addition of Ce(NO3)2⋅6H2O. Additionally, Fe2P/NF was directly prepared on the NF substrate. Electrodes Preparation—Preparation of RuO2@NF and Pt/C@NF Electrodes Typically, 12.9 mg of commercial RuO2 was mixed with 300 µL of Nafion solution (5 wt.%) and 700 µL of ethanol, followed by ultrasonication for 0.5 h. The resulting dispersed solution was drop-cast onto the NF with an exposed area of 1 cm−2. Similarly, commercial 20 wt.% Pt/C was used to fabricate Pt/C@NF following the same procedure. Electrochemical Measurements The electrochemical tests were conducted using a three-electrode cell containing 50 mL of N2-saturated 1.0 M KOH solution. The as-fabricated catalyst served as the working electrode, with a Hg/HgO electrode as the reference electrode and a graphite rod as the counter electrode. Polarization curves were recorded over a potential range from −0.2 to 2.0 V versus Hg/HgO at a scan rate of 5 mV s−1. Electrochemical impedance spectroscopy (EIS) was performed at an overpotential of 0.25 VRHE with a frequency range of 10 mHz to 100 kHz. Chronoamperometry measurements were conducted at current densities of 0.2 A cm−2 and 0.5 A cm−2. All J–V curves obtained in the three-electrode system were iR-corrected using the following formula: (1) Where i represents the current, Rs is the solution resistance. Anion Exchange Membrane Water Electrolyzer (AEMWE) Measurements The performance of AEMWE was assessed in a customized single cell with a working area of 4 cm2. The membrane electrode assembly (MEA) comprised Ce0.1-Fe2P/NiCoP@NF, Ce0.1-CoP/Ni3P@NF, and a piece of Sustainion X37-50 anion exchange membrane. To simulate industrial conditions, the AEMWE was operated at 60 °C using a 1.0 M KOH electrolyte fed at a flow rate of 20 mL min−1. Stability measurements were performed at a constant current density of 1.0 A cm−2. The EIS spectrum was performed at 0.5 A cm−2.'
+               A:{
+                    "MAT1": {
+                        "name": "Rb-TiO2/TB",
+                        "Syns_method": "sovthermol",
+                        "Syns_processing":{
+                            "precursors": {
+                                "prc1": {"name": "HAc", "amount": "0.2 mL"},
+                                "prc2": {"name": "H2O", "amount": "0.8 mL"},
+                                "prc3": {"name": "RbNO3", "amount": "0.18 g"},
+                                "prc4": {"name": "TBOT", "amount": "6 mL"}
+                            },
+                            "solvents": {
+                                "sov1": {"name": "BnOH", "amount": "25 mL"}
+                            },
+                            "post_processing":{
+                                "post_proc1": {"step": "heat","parameters": {"temperature": "200 °C", "time": "2 h"}},
+                                "post_proc2": {"step": "heat", "substance": [{"name": "TBOT", "amount": "1.2 mL"}, {"name": "H2O", "amount": "30 µL"}], "parameters": {"temperature": "300 °C", "time": "1 h"}},
+                                "post_proc3": {"step": "centrifuge"},
+                                "post_proc4": {"step": "dry","parameters": {"temperature": "80 °C", "time": "12 h"}}
+                            }
+                        }
+                    },
+                
+                    "MAT2":{
+                        "name": "Rb-TiO2/TB-CS",
+                        "Syns_method": "heat",
+                        "Syns_processing":{
+                            "precursors":{
+                                "prc1": {"name": "Rb-TiO2/TB", "amount": "1.5 g"},
+                                "prc2": {"name": "DPSi", "amount": "0.25 g"},
+                                "prc3": {"name": "APSi", "amount": "0.05 g"}
+                            },
+                            "solvents": {
+                                "sov1": {"name": "PGMEA", "amount": "10 mL"}
+                            },
+                            "post_processing":{
+                                "post_proc1": {"step": "heat", "parameters": {"temperature": "130 °C", "time": "50 min"}},
+                                "post_proc2": {"step": "centrifuge"},
+                                "post_proc3": {"step": "dry", "parameters": {"temperature": "ordinary temperature", "time": "2 h"}}
+                            }
+                        }
+                    },
+                
+                    "MAT3":{
+                        "name": "Rb-TiO2/TB-CS/Acrylate Photochromic Hybrid Films",
+                        "Syns_method": "UV cure",
+                        "Syns_processing":{
+                            "precursors":{
+                                "prc1": {"name": "Rb-TiO2/TB-CS", "amount": "1.5 g"},
+                                "prc2": {"name": "MMA", "amount": "1.5 mL"},
+                                "prc3": {"name": "PEGDA", "amount": "2.5 mL"},
+                                "prc4": {"name": "DEG", "amount": "0.2 mL"},
+                                "prc5": {"name": "PETA", "amount": "0.4 g"},
+                                "prc6": {"name": "TPO", "amount": "35 mg"}
+                            },
+                            "solvents": {
+                                "sov1": {"name": "CH3COCH3", "amount": "10 mL"} 
+                            },
+                            "post_processing": {
+                                "post_proc1": {"step": "evaporate", "parameters": {"temperature": "80 °C"}},
+                                "post_proc2": {"step": "UV cure"},
+                            }
+                        }
+                    },
+                
+                    "MAT4":{
+                        "name": "Rb-TiO2/TB-CS/PVA Photochromic Hydrogels",
+                        "Syns_method": "heat",
+                        "Syns_processing":{
+                            "precursors":{
+                                "prc1": {"name": "Rb-TiO2/TB-CS", "amount": "1.5 g"},
+                                "prc2": {"name": "PVA", "amount": "3 g"},
+                                "prc3": {"name": "DEG", "amount": "0.2 mL"}
+                            },
+                            "solvents": {
+                                "sov1": {"name": "H2O", "amount": "30 mL"}
+                            },
+                            "post_processing": {
+                                "post_proc1": {"step": "heat", "parameters": {"temperature": "100 °C"}},
+                                "post_proc2": {"step": "mold fill", "parameters": {"temperature": "60 °C"}},
+                            }
+                        }
+                    }
+                }
+
+               Q:Extract the following experimental section text: '2. Experimental SectionClick to copy section link 2.1. Preparation of MnOx Catalysts The catalyst samples were prepared by the oxalic acid coprecipitation method. Analytically pure Mn(CH3COO)2·4H2O and oxalic acid were used as raw materials. The Mn(CH3COO)2·4H2O with total molarity of 0.022 mol was dissolved in 20 mL of deionized water at 80 °C, and then 20 mL of 10 wt % of the oxalic acid solution was added into the metal salt solution with stirring for 20 min at 80 °C, which yielded precipitation. The precipitate was filtered and washed with deionized water. Subsequently, the obtained precipitate was further added into the 25 mL of the solution containing 0.5 g of sodium carboxymethylcellulose under magnetic stirring at 80 °C for 10 min. The cordierite support was impregnated into the cooled mixed solution above for 5 min, followed by removing and drying at 150 °C. The impregnation process was repeated three times. The loaded cordierite was calcined at 400 °C for 3 h at a heating rate of 2 °C·min–1. Finally, a cordierite catalyst sample with a loading of 10 wt % was obtained, denoted as MnOx. 2.2. Catalytic Activity Evaluation The ozone decomposition performance of the catalysts was measured at ambient temperature by using a fixed-bed reactor (6 mm inner diameter). The mass of cordierite-loaded samples used for each test was 0.3 g, and the space velocity was 600,000 mL·gcat–1·h–1. The gas flow rate through the fixed-bed reactor was 300 mL·min–1, and the entrance ozone concentration was preserved at 20 ppm. The reaction temperature was 25 °C. Detection of relative humidity (RH) was performed using a detector (DELIXI ELECTRIC, China). Ozone was generated by irradiation with a UV lamp at 185 nm. The ozone concentration at the entrance and exit was tested with an ozone detector (model 106-M, 2B Technologies). The ozone conversion rate can be calculated based on the equation ozone conversion rate=(𝐶0−𝐶)/𝐶0 where C0 is the ozone concentration at the entrance and C is the ozone concentration at the exportation. The experimental setup for catalyst ozone decomposition performance evaluation is shown in Figure S1. 2.3. Catalyst Regeneration Process Typically, a regenerated solution with a concentration of 1 M was prepared by dissolving 6.9 mg of sodium nitrite in 1 mL of deionized water and then immersing 0.3 g (0.6 cm3) of the inactivated cordierite-loaded sample in the solution for 15 min. Then, the soaked samples were rinsed three times with deionized water and then purged with dry air at 25 °C for 5 h. Finally, dry regenerated samples were obtained. All operations were carried out at room temperature (25 °C). 2.4. Electrolytic Recovery Process of Regenerated Solutions Typically, 20 mL of regeneration solution was collected in a 50 mL electrolytic cell, and at the same time, a 0.4% volume fraction (80 μL) of tetrahydrofuran and 0.8 g of NaOH were added. The dimensionally stable anode (DSA) plate of size 1 cm × 2 cm was used as cathode and anode materials. The regenerated solution was electrolyzed for 7 h at a current of 0.3 A and a current density of 0.3 A/cm2 to obtain the recovered regenerated solution. The schematic diagram of electrolytic regeneration is shown in Figure S2.'
+               A:{
+                    "MAT1":{ 
+                        "name": "MnOx",
+                        "Syns_method": "oxalic acid coprecipitation",
+                        "Syns_processing":{
+                            "precursors": {
+                                "prc1": {"name": "Mn(NO3)2", "amount": "0.022 mol"},
+                                "prc2": {"name": "HAc", "amount": "0.8 mL"},
+                                "prc3": {"name": "metal salt", "amount": "10 wt %"}
+                            },
+                            "solvents": {
+                                "sov1": {"name": "H2O", "amount": "20 mL"}
+                            },
+                            "post_processing":{
+                                "post_proc1": {"step": "stir", "substance": [{"name": "CMC-Na", "amount": "0.5 g"}], "parameters": {"temperature": "80 °C", "time": "10 min"}},
+                                "post_proc2": {"step": "dry", "parameters": {"temperature": "150 °C"}},
+                                "post_proc3": {"step": "calcine", "parameters": {"temperature": "400 °C", "time": "3 h"}}
+                            }
+                        }
+                    }
+                }
+
+               Q:Extract the following experimental section text: '2. Experimental section 2.1. Materials Titanium butoxide (TBOT, C16H36O4Ti, ≥99 %), manganese(II) nitrate (Mn(NO3)2, AR, 50 wt% in H2O), methyl orange (MO, AR), methyl blue (MB, AR), reactive red 120 (RR-120, AR), 3,3-dimethoxy-2,7,10,13,16-pentaoxa-3-silaheptadecane (DPSi, C13H30O7Si, ≥97 %), n-dodecyltrimethoxysilane (C12 silane, C15H34O3Si, ≥95 %), and coumarin (C9H6O2, ≥99 %) were obtained from Shanghai Macklin Biochemical Co., Ltd. Ethanol (C2H5OH, ≥99.7 %), acetic acid (CH3COOH, ≥99.5 %), toluene (C7H8, ≥99.5 %), n-heptane (C7H16, ≥98.5 %), tetraethyl orthosilicate (TEOS, C8H20O4Si, AR), and ammonium hydroxide (NH3·H2O, 28 %) were provided by Sinopharm Chemical Reagent Co., Ltd. Commercial fluorocarbon coatings consisting of primer (PF750) and curing agent (PA-9001) were obtained from Shanghai Weikai Optoelectronic New Material Co., Ltd. Ultrapure Milli-Q water (18.2 MΩ cm−1) was applied during the preparation of samples. 2.2. Synthesis of Mn-TiO2-DPSi nanoparticles and Mn-TiO2-C12 silane nanodispersions A calculated amount of Mn(NO3)2, 1.8 mL of deionized water, and 15 mL of ethanol was slowly added to a mixture containing 1.5 mL of acetic acid, 18 mL of TBOT, and 30 mL of ethanol. After reaction for 30 min to form a homogeneous sol, 1.2 mL of DPSi was added, and then the sol was sealed in a Teflon-lined autoclave at 150 °C for 25 ‍h. The products were precipitated by anti-solvent (n-heptane), washed three times with ethanol, and then dried in vacuum to obtain the Mn-TiO2-DPSi nanoparticles. Mn-TiO2 unmodified with DPSi was also synthesized without the addition of DPSi and the obtained samples were noted as XMn-TiO2, and the X represents the molar ratio of Mn to Ti. The 0.3 g of Mn-TiO2 and 0.2 mL of C12 silane were mixed in toluene and heated at 120 °C for 2 h to obtain transparent Mn-TiO2-C12 silane nanodispersions. Pure TiO2 was also prepared as a reference. 2.3. Preparation of Mn-TiO2@SiO2-C12 silane nanodispersions Typically, 0.3 g of Mn-TiO2-DPSi was dispersed in the mixture consisting of 20 mL of ethanol and 4 mL of H2O, forming a transparent dispersion. Then 0.5 mL of NH3·H2O and 2 mL of TEOS were added to the mixture in order under stirring. The reaction was carried out at room temperature with stirring for 12 h to sufficiently form the SiO2 shell. The 0.5 mL of C12 silane was then added and the mixture was still stirred for another 12 h to precipitate Mn-TiO2@SiO2-C12 silane particles fully. After being washed, the Mn-TiO2@SiO2-C12 silane nanoparticles were dispersed in toluene producing a transparent nanodispersion. TiO2@SiO2 and Mn-TiO2@SiO2 were also prepared as comparison without C12 silane modification. 2.4. Preparation of Mn-TiO2@SiO2-C12 silane/fluorocarbon hybrid coatings The substrate fluorocarbon coating was prepared by mixing PF750 and PA9001 in the ratio of 100:7. The prepared Mn-TiO2@SiO2-C12 silane nanodispersion was added dropwise to the substrate coating. Blade-coating machine (Yunfan Y01-V) was used to prepare the hybrid coatings on polyvinylidene fluoride (PVDF) membranes. The coatings were dried at 130 °C for 2 min and then at 60 °C for 24 h to be sufficiently cured. TiO2, TiO2@SiO2, and Mn-TiO2 modified by C12 silane were also used as fillers to prepare hybrid coatings. 2.5. Methods and characterizations. More information about the characterizations, performance measurements, and DFT calculations are included in supporting information.'
+               A:{
+                    "MAT1":{
+                        "name": "Mn-TiO2-DPSi",
+                        "Syns_method": "heat",
+                        "Syns_processing":{
+                            "precursors": {
+                                "prc1": {"name": "Mn(NO3)2", "amount": "calculated amount"},
+                                "prc2": {"name": "HAc", "amount": "1.5 mL"},
+                                "prc3": {"name": "TBOT", "amount": "18 mL"},
+                                "prc4": {"name": "DPSi", "amount": "1.2 mL"}
+                            },
+                            "solvents": {
+                                "sov1": {"name": "H2O", "amount": "1.8 mL"},
+                                "sov2": {"name": "C2H5OH", "amount": "45 mL"}
+                            },
+                            "post_proc":{
+                                "post_proc1": {"step": "heat", "parameters": {"temperature": "150 °C", "time": "25 ‍h"},
+                                "post_proc2": {"step": "dry", "parameters": {"temperature": "ordinary temperature"}}
+                            }
+                        }
+                    },
+                
+                    "MAT2":{
+                        "name": "Mn-TiO2@SiO2-C12 silane",
+                        "Syns_method": "heat",
+                        "Syns_processing":{
+                            "precursors": {
+                                "prc1": {"name": "Mn-TiO2-DPSi", "amount": "0.3 g"},
+                                "prc2": {"name": "NH3·H2O", "amount": "0.5 mL"},
+                                "prc3": {"name": "TEOS", "amount": "2 mL"},
+                                "prc4": {"name": "DPSi", "amount": "1.2 mL"}
+                            },
+                            "solvents": {
+                                "sov1": {"name": "H2O", "amount": "4 mL"},
+                                "sov2": {"name": "C2H5OH", "amount": "20 mL"}
+                            },
+                            "post_processing":{
+                                "post_proc1": {"step": "stir", "parameters": {"temperature": "ordinary temperature", "time": "24 ‍h"}},
+                                "post_proc2": {"step": "stir", "substance": [{"name": "C12 silane", "amount": "0.5 mL"}], "parameters": {"temperature": "ordinary temperature", "time": "12 h"}}
+                            }
+                        }
+                    }
+                }
+
+               Q:Extract the following experimental section text: '2. Experimental section 2.1. Materials Isopropyl alcohol (IPA), propylene glycol methyl ether acetate (PGMEA), 2–3 nm hydrophilic anatase phase nano-TiO2 powder, ammonia, 2-Ethylhexyl methacrylate (EHMA) and Petroleum ether employed in this study were obtained from Shanghai Titan Chemical Reagent Co., Ltd.; KH570 silane coupling agent (C10H20O5Si) and azobisisobutyronitrile (AIBN) were supplied from Beijing InnoChem Science& Technology Co., Ltd. DISPER 985 was supplied from Beston Chemicals Co., Ltd. 2.2. Synthesis KH570/EHMA modified TiO2 nanoparticles 5 g KH570, 5 g deionized water, 10 g TiO2 and 100 g IPA were added into a round bottom flask, and the mixture with the pH of 3–11 was heated to reflux for 8 h at 80 ℃ with ultrasonic (Shunma SM-1000C). The reaction products were purified using centrifugation, followed by washing with IPA for three times to remove residual KH570 and other substances. Finally drying at 60 ℃, the modified KH570-TiO2 powder was obtained. 5 g KH570-TiO2, 5 g 2-Ethylhexyl methacrylate (EHMA), 50 g IPA were added into a 2-neck boiling flask, then a solution of 0.05 g AIBN in 10 g IPA was slowly added to the above solution during the reaction with ultrasonic. The reaction was carried out in nitrogen environment and heated to reflux at 80 ℃ for 8 h. The reaction products were centrifuged and washed by petroleum ether for three times to remove residual acrylate monomer and other substances, then the modified KH570/EHMA −TiO2 was obtained after drying at 60 ℃. 50g KH570/EHMA-TiO2 and 0.05g DISPER 985 were dispersed in 50g PGMEA solution with ultrasonic. 2.3. Characterization 2.3.1. Characterization modified TiO2 nanoparticle The electric charge of nanoparticles was evaluated with JS94 micro electrophoresis. The thermal behavior of the unmodified and modified TiO2 nanoparticles powder was evaluated with thermogravimetric analysis (TGA-50), the sample was heated from room temperature to 800 ℃ at a heating rate of 10 °C min−1 under air atmosphere. The contact angle of the TiO2 nanoparticle powder were measured by Kino SL250 contact angle meter. Fourier transfer infrared spectra (FTIR) was recorded on Thermo NICOLET380 spectrometer. The surface compositions were characterized by X-ray photoelectron spectroscopy (PHI Quantera II). Energy dispersive X-ray (EDX) spectrum and mapping were detected with FEI QUANTA 200 FEG and HITACHI SU8220. TiO2 nanoparticle size dispersion was evaluated with Malvern Zetasizer Lab. The diffraction efficiency was evaluated with Thorlabs S142C and PM100D. Transmission electron microscopy (TEM, JEM-2100F) was used to observe the morphologies of the nanoparticles. Nanoparticle dispersion stability in PGMEA were evaluated by Formulaction Turbiscan Tower. 2.3.2. Characterization high refractive index waveguide The surface morphologies of composite resin film and nanoimprinting structure were observed by Scanning Electron Microscope (SEM, XL30S-FEG, FEI, USA). The refractive index of the corresponding samples was evaluated by spectroscopic ellipsometer (J.A.Woollam M−2000X).'
+               A:{
+                    "MAT1":{
+                        "name": "KH570 modified TiO2",
+                        "Syns_method": "heat",
+                        "Syns_processing":{
+                            "precursors": {
+                                "prc1": {"name": "KH570", "amount": "5 g"},
+                                "prc2": {"name": "TiO2", "amount": "10 g"}
+                            },
+                            "solvents": {
+                                "sov1": {"name": "H2O", "amount": "5 g"},
+                                "sov2": {"name": "IPA", "amount": "100 g"}
+                            },
+                            "post_processing":{
+                                "post_proc1": {"step": "heat", "parameters": {"temperature": "80 °C", "time": "8 h"}},
+                                "post_proc2": {"step": "dry", "parameters": {"temperature": "60 °C"}}
+                            }
+                        }
+                    },
+
+                    "MAT2":{
+                        "name": "KH570/EHMA-TiO2",
+                        "Syns_method": "heat",
+                        "Syns_processing":{
+                            "precursors": {
+                                "prc1": {"name": "KH570-TiO2", "amount": "5 g"},
+                                "prc2": {"name": "EHMA", "amount": "5 g"},
+                                "prc3": {"name": "AIBN", "amount": "0.05 g"}
+                            },
+                            "solvents": {
+                                "sov1": {"name": "IPA", "amount": "60 g"}
+                            },
+                            "post_processing":{
+                                "post_proc1": {"step": "heat", "parameters": {"temperature": "80 °C", "time": "8 h"}},
+                                "post_proc2": {"step": "dry", "parameters": {"temperature": "60 °C"}}
+                            }
+                        }
+                    }
+                }
+
