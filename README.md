@@ -1,4 +1,4 @@
-# Paper Agent: a large language models powered agent for end-to-end data collection and analysis of TiO<sub>2</sub> nanocomposites
+# An LLMs-powered chemist agent solves the data-to-synthesis process-to-property challenge in the TiO<sub>2</sub> nanocomposites
 ## 🙌About
 This repository contains the code and resources of the following paper:
 
@@ -127,3 +127,4 @@ Paper Agent is licensed under the Apache License, Version 2.0: http://www.apache
 ## Citation
 
 comming soon.....
+
