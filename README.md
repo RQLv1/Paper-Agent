@@ -2,7 +2,7 @@
 ## 🙌About
 This repository contains the code and resources of the following paper:
 
-Paper Agent: a large language models powered agent for end-to-end data collection and analysis of TiO<sub>2</sub> nanocomposites
+An LLMs-powered chemist agent solves the data-to-synthesis process-to-property challenge in the TiO<sub>2</sub> nanocomposites
 
 ## 📕Overview of the agent
 Data scarcity is a significant bottleneck for applying Artificial Intelligence (AI) in the field of TiO<sub>2</sub> nanocomposites. To address this, we developed “Paper Agent”, a Large Language Models (LLMs) powered agent for end-to-end automatic data collection and analysis. Equipped with modules for database creation, joint analysis of database and automatic data analysis and carefully designed Structured ChemPrompt Engineering, Paper Agent streamlines the research workflow.
@@ -127,4 +127,5 @@ Paper Agent is licensed under the Apache License, Version 2.0: http://www.apache
 ## Citation
 
 comming soon.....
+
 
