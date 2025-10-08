@@ -1,11 +1,11 @@
-# An LLMs-powered chemist agent solves the data-to-synthesis process-to-property challenge in the TiO<sub>2</sub> nanocomposites
+# LLMs-powered chemist agent reveals the synthesis–property relationships in semiconductor TiO<sub>2</sub> nanocomposites
 ## 🙌About
 This repository contains the code and resources of the following paper:
 
-An LLMs-powered chemist agent solves the data-to-synthesis process-to-property challenge in the TiO<sub>2</sub> nanocomposites
+LLMs-powered chemist agent reveals the synthesis–property relationships in semiconductor TiO<sub>2</sub> nanocomposites
 
 ## 📕Overview of the agent
-Data scarcity is a significant bottleneck for applying Artificial Intelligence (AI) in the field of TiO<sub>2</sub> nanocomposites. To address this, we developed “Paper Agent”, a Large Language Models (LLMs) powered agent for end-to-end automatic data collection and analysis. Equipped with modules for database creation, joint analysis of database and automatic data analysis and carefully designed Structured ChemPrompt Engineering, Paper Agent streamlines the research workflow.
+TiO2 nanocomposites are widely used in photocatalysis, photovoltaics, and optical devices, yet their synthesis process–property relationships (PPR) remain poorly understood due to data scarcity. Here, we present Paper Agent, a large language model (LLM)-powered chemist agent for end-to-end data collection and analysis. Leveraging Structured ChemPrompt Engineering and integrated modules for database creation, automatic analysis, and joint database interrogation, Paper Agent autonomously extracted 4000 structured data points from the literature. Using a fine-tuned qwen-14b-grpo model, it achieved an F1 score of 0.7503, enabling fast, cost-effective, and accurate data extraction. Automated regression and SHAP analysis revealed key factors influencing material properties, while joint database analysis enabled reverse design of synthesis routes. Notably, multi-tool integration gives rise to emergent capabilities, mimicking expert reasoning. This work demonstrates a novel AI-driven strategy to uncover PPR in energy-relevant TiO2 nanocomposites and accelerate materials discovery.
 
 <p align="center">
 <img  src="images/ToC.png"> 
@@ -127,5 +127,6 @@ Paper Agent is licensed under the Apache License, Version 2.0: http://www.apache
 ## Citation
 
 comming soon.....
+
 
 
